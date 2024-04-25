@@ -8,8 +8,12 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.shortcuts import render
 import jwt
+from ninja.security import HttpBearer
+from ninja.errors import HttpError
 
-# _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJ1c2VybmFtZSI6InNhbmRyYSJ9.otYJvgshoWlsvXw5W53OWc9bVACIF-DGNbUm3YT9d3w"
+
+# token for RobinHood user
+# eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJ1c2VybmFtZSI6IlJvYmluSG9vZCJ9.Vk-799HIsCsO4bsuitXoXYvHfUhffLxgBSZN5ZLFG-g
 
 router = Router()
 
@@ -23,6 +27,20 @@ class UserRegister(Schema):
 class UserLogin(Schema):
     username: str
     password: str
+
+
+class AuthBearer(HttpBearer):
+    def authenticate(self, request, token):
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            return payload
+        except:
+            raise HttpError(401, "Not authorarized, invalid token!")
+
+
+@router.get("/bearer", auth=AuthBearer())
+def bearer(request):
+    return {"payload": request.auth}
 
 
 @router.get("/allusers", response={200: list[UserSchema]})
@@ -51,7 +69,7 @@ def login(request, data: UserLogin):
             "user_id": user.id,
             "username": user.username,
         }
-        token = jwt.encode(payload, settings.SECRET_KEY)
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
         # response = Response({"token": token})
         # response.set_cookie("access_token", token, httponly=True)
         return {"user_id": user.id, "token": token}

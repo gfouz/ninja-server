@@ -1,6 +1,7 @@
 from ninja import ModelSchema, Schema
 from posts.models import Post, Category
 from django.contrib.auth.models import User
+from datetime import datetime
 
 
 class UserSchema(ModelSchema):
@@ -32,12 +33,13 @@ class PostCreateSchema(Schema):
     author_id: int = None
 
 
-class PostAuthorSchema(Schema):
+class PostFullSchema(Schema):
     id: int
     title: str
     slug: str
     content: str
     author: UserSchema
+    created_at: datetime = datetime.now()
 
 
 class PostUpdateSchema(Schema):
