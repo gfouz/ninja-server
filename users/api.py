@@ -2,6 +2,7 @@ from ninja import Router, Form
 from ninja.responses import Response
 from ninja import Schema
 from posts.schemas import UserSchema
+from users.schemas import UserFullSchema
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
@@ -41,6 +42,12 @@ class AuthBearer(HttpBearer):
 @router.get("/bearer", auth=AuthBearer())
 def bearer(request):
     return {"payload": request.auth}
+
+
+@router.get("/get/users", response={200: list[UserFullSchema]})
+def get_user_list(request):
+    users = User.objects.all()
+    return users
 
 
 @router.get("/allusers", response={200: list[UserSchema]})

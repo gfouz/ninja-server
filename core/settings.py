@@ -43,6 +43,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "posts.middlewares.HttpTrafficLogger",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -121,3 +122,23 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": "network_traffic.log",
+        },
+    },
+    "loggers": {
+        "posts.middlewares.HttpTrafficLogger": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+        },
+    },
+}

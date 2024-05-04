@@ -22,6 +22,7 @@ router = Router()
 class AuthBearer(HttpBearer):
     def authenticate(self, request, token):
         try:
+            # print("this is the token :" + token)
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
             return payload
         except:
@@ -79,7 +80,7 @@ def update_post(request, post_id: int, payload: PostUpdateSchema):
     return post
 
 
-@router.delete("/delete/post/{post_id}")
+@router.delete("/delete/post/{post_id}", auth=AuthBearer())
 def delete_post(request, post_id: int):
     post = get_object_or_404(Post, id=post_id)
     post.delete()
